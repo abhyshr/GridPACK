@@ -70,11 +70,11 @@ include_directories(AFTER ${Boost_INCLUDE_DIRS})
 message(STATUS "Checking PETSc ...")
 find_package (PETSc COMPONENTS CXX REQUIRED)
 
-if (NOT EXISTS "${PETSC_DIR}/${PETSC_ARCH}/conf/PETScConfig.cmake")
+if (NOT EXISTS "${PETSC_DIR}/${PETSC_ARCH}/lib/petsc/conf/PETScConfig.cmake")
   message(FATAL_ERROR "PETSc found, but CMake configuration for PETSc installation not found?")
 endif()
 
-include("${PETSC_DIR}/${PETSC_ARCH}/conf/PETScConfig.cmake")
+include("${PETSC_DIR}/${PETSC_ARCH}/lib/petsc/conf/PETScConfig.cmake")
 
 # checks 
 
