@@ -105,6 +105,25 @@ if (NOT PETSC_CLANGUAGE_Cxx)
 endif()
 
 # -------------------------------------------------------------
+# SLEPc
+#
+# We need a very recent version of PETSc. It needs to parallel and
+# compiled with C++ complex support.
+#
+# Will check SLEPc only if SLEPC_DIR is defined in the build script
+# -------------------------------------------------------------
+
+if(DEFINED SLEPC_DIR)
+  message(STATUS "Checking SLEPc ...")
+  find_package (SLEPc COMPONENTS CXX REQUIRED)
+
+  if (NOT EXISTS "${SLEPC_DIR}/${PETSC_ARCH}/lib/slepc/conf/SLEPcConfig.cmake")
+    message(FATAL_ERROR "SLEPc found, but CMake configuration for SLEPc installation not found?")
+  endif()
+
+  include("${SLEPC_DIR}/${PETSC_ARCH}/lib/slepc/conf/SLEPcConfig.cmake")
+endif()
+# -------------------------------------------------------------
 # ParMETIS
 # 
 # Only versions > 4.0 have been used
