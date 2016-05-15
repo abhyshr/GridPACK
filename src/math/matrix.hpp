@@ -340,6 +340,12 @@ protected:
     p_matrix_impl->scale(x);
   }
 
+  /// Get Eigen values for the MatrixT (specialized)
+  void p_eigs(void)
+  {
+    p_matrix_impl->eigs();
+  }
+
   /// Shift the diagonal of this matrix by the specified value (specialized)
   void p_addDiagonal(const TheType& x)
   {

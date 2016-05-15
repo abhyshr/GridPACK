@@ -29,6 +29,7 @@ set(target_libraries
     ${MPI_CXX_LIBRARIES}
     ${PETSC_LIBRARIES})
 
+
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
 if (GA_FOUND)
   include_directories(AFTER ${GA_INCLUDE_DIRS})

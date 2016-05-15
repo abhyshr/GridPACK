@@ -24,6 +24,7 @@ function(gridpack_setup)
   
   set(GRIDPACK_LIB_DIR "${GRIDPACK_DIR}/lib")
 
+  set(GRIDPACK_HAVE_SLEPC @SLEPC_FOUND@)
   set(GRIDPACK_HAVE_PETSC @PETSC_FOUND@)
   set(GRIDPACK_HAVE_PARMETIS @PARMETIS_FOUND@)
   set(GRIDPACK_HAVE_GA @GA_FOUND@)
@@ -131,6 +132,15 @@ function(gridpack_setup)
     )
     list(APPEND gp_libs
       @PETSC_LIBRARIES@
+    )
+  endif()
+
+  if(GRIDPACK_HAVE_SLEPC)
+    list(APPEND gp_include
+      @SLEPC_INCLUDES@
+    )
+    list(APPEND gp_libs
+      @SLEPC_LIBRARIES@
     )
   endif()
 

@@ -64,10 +64,13 @@ if (GA_FOUND)
     include_directories(AFTER ${GA_INCLUDE_DIRS})
 endif()
 
-# implementation specific sources and flags
 if (PETSC_FOUND)
 
     include_directories (AFTER ${PETSC_INCLUDES})
+    if (SLEPC_FOUND)
+      include_directories (AFTER ${SLEPC_INCLUDES})
+    endif()
+    
     add_definitions (${PETSC_DEFINITIONS})
 
     if (PETSC_HAVE_SUPERLU_DIST) 
@@ -92,6 +95,10 @@ if (PETSC_FOUND)
       petsc/petsc_nonlinear_solver.cpp
       petsc/petsc_dae_solver.cpp
     )  
+
+    if(SLEPC_FOUND)
+      set(target_libraries ${SLEPC_LIBRARIES} ${target_libraries})
+    endif()
 
     set(target_libraries ${PETSC_LIBRARIES} ${target_libraries})
 

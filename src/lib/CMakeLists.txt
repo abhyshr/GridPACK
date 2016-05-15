@@ -92,6 +92,9 @@ if (PETSC_FOUND)
   include_directories(AFTER ${PETSC_INCLUDES})
   add_definitions (${PETSC_DEFINITIONS})
 endif()
+if (SLEPC_FOUND)
+  include_directories(AFTER ${SLEPC_INCLUDES})
+endif()
 
 # add_library(gridpack ${SOURCES})
 

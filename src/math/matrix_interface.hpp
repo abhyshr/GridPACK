@@ -262,6 +262,17 @@ public:
     this->p_scale(x);
   }
 
+  /// Get the eigen values of MatrixT
+  /** 
+   * @e Collective.
+   * 
+   *
+   */
+  void eigs(void)
+  {
+    this->p_eigs();
+  }
+
   /// Replace all elements with their real parts
   void real(void)
   {
@@ -424,6 +435,9 @@ protected:
 
   /// Scale this entire MatrixT by the given value (specialized)
   virtual void p_scale(const TheType& x) = 0;
+
+  /// Get the Eigen values of MatrixT (specialized)
+  virtual void p_eigs(void) = 0;
 
   ///  Get a row and put it in a local array (specialized)
   virtual void p_getRow(const IdxType& row, TheType *x) const

@@ -28,7 +28,7 @@
 #include "petsc_matrix_wrapper.hpp"
 #include "value_transfer.hpp"
 #include "fallback_matrix_methods.hpp"
-
+#include <slepceps.h>
 
 extern PetscErrorCode 
 sillyMatScaleComplex(Mat A, const gridpack::ComplexType& px);
@@ -430,6 +430,79 @@ protected:
       gridpack::math::multiplyvalue<TheType> op(xin);
       p_applyOperation(op);
     }
+  }
+
+  /// Get Eigen values of MatrixT
+  void p_eigs(void)
+  {
+    PetscErrorCode ierr(0);
+    Mat *pA(p_mwrap->getMatrix());
+    EPS eps;
+    PetscInt its, size,nev,ncv,nconv,i;
+    PetscReal re, im, error;
+    Vec       Xr, Xi;
+# if defined(PETSC_USE_COMPLEX)
+    PetscScalar kr, ki;
+# else
+    PetscReal   kr, ki;
+#endif
+	
+    ierr = MatCreateVecs(*pA,NULL,&Xr);CHKERRXX(ierr);
+    ierr = MatCreateVecs(*pA,NULL,&Xi);CHKERRXX(ierr);
+
+    ierr = EPSCreate(PetscObjectComm((PetscObject)*pA),&eps);CHKERRXX(ierr);
+    ierr = EPSSetOperators(eps,*pA,NULL); CHKERRXX(ierr);
+    ierr = EPSSetProblemType(eps, EPS_NHEP); CHKERRXX(ierr);
+    ierr = MatGetSize(*pA,&size,NULL);CHKERRXX(ierr);
+    nev = size; // Number of requested eigen values
+    ncv = 2*size; // the size of the subspace
+    ierr = EPSSetDimensions(eps,nev,ncv,size); CHKERRXX(ierr);
+    ierr = EPSSetFromOptions(eps);CHKERRXX(ierr);
+    ierr = EPSSolve(eps); CHKERRXX(ierr);
+
+    ierr = EPSGetIterationNumber(eps,&its); CHKERRXX(ierr);
+    ierr = PetscPrintf(PETSC_COMM_WORLD," Number of iterations of the method: %D\n", its); CHKERRXX(ierr);
+
+    ierr = EPSGetConverged(eps,&nconv); CHKERRXX(ierr);
+    ierr = PetscPrintf(PETSC_COMM_WORLD," Number of converged eigenpairs: %D\n\n", nconv);CHKERRXX(ierr);
+
+    if (nconv>0) {
+      /*
+	Display eigenvalues and relative errors
+      */
+      ierr = PetscPrintf(PETSC_COMM_WORLD,
+			 "           k          ||Ax-kx||/||kx||\n"
+			 "   ----------------- ------------------\n");CHKERRXX(ierr);
+      
+      for (i=0;i<nconv;i++) {
+	/*
+	  Get converged eigenpairs: i-th eigenvalue is stored in kr (real part) and
+	  ki (imaginary part)
+	*/
+	ierr = EPSGetEigenpair(eps,i,&kr,&ki,Xr,Xi);CHKERRXX(ierr);
+	/*
+	  Compute the relative error associated to each eigenpair
+	*/
+	ierr = EPSComputeError(eps,i,EPS_ERROR_RELATIVE,&error);CHKERRXX(ierr);
+	
+#if defined(PETSC_USE_COMPLEX)
+	re = PetscRealPart(kr);
+	im = PetscImaginaryPart(kr);
+#else
+	re = kr;
+	im = ki;
+#endif
+	if (im!=0.0) {
+	  ierr = PetscPrintf(PETSC_COMM_WORLD," %9f%+9f j %12g\n",(double)re,(double)im,(double)error);CHKERRXX(ierr);
+	} else {
+	  ierr = PetscPrintf(PETSC_COMM_WORLD,"   %12f       %12g\n",(double)re,(double)error);CHKERRXX(ierr);
+	}
+      }
+      ierr = PetscPrintf(PETSC_COMM_WORLD,"\n");CHKERRXX(ierr);
+    }
+    ierr = EPSDestroy(&eps); CHKERRXX(ierr);
+    ierr = VecDestroy(&Xr); CHKERRXX(ierr);
+    ierr = VecDestroy(&Xi); CHKERRXX(ierr);
   }
 
   /// Shift the diagonal of this matrix by the specified value (specialized)

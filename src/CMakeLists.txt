@@ -123,6 +123,7 @@ if(DEFINED SLEPC_DIR)
 
   include("${SLEPC_DIR}/${PETSC_ARCH}/lib/slepc/conf/SLEPcConfig.cmake")
 endif()
+
 # -------------------------------------------------------------
 # ParMETIS
 # 
